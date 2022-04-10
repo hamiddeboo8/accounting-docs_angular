@@ -1,0 +1,190 @@
+<div *ngIf="errors" class="alert alert-danger"> 
+    {{ errors }} 
+  </div>
+  <div class="rtlDir" *ngIf="!errors">
+      <form #createForm="ngForm">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="">شماره سند: </label>
+              <input class="form-control" type="number" id="docNum" required #docNum="ngModel" name="docNum" [class.is-invalid]="docNum.invalid" [(ngModel)]="docModel.DocNum" placeholder="شماره سند">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="">نوع سند:</label>
+              <input class="form-control" id="docType" name="docType" readonly [(ngModel)]="docModel.DocType" placeholder="نوع سند">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="">تاریخ:</label>
+              <ng-persian-datepicker [dateFormat]="'jYYYY-jMM-jDD HH:mm:ss'" (dateOnSelect)="docModel.Date = $event.shamsi">
+                <input type="text" class="form-control" id="date" #date="ngModel" name="date" required [class.is-invalid]="date.invalid" [ngModel]="docModel.Date" placeholder="تاریخ"/>
+              </ng-persian-datepicker>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="">وضعیت:</label>
+              <input class="form-control" id="state" name="state" readonly [(ngModel)]="docModel.State" placeholder="وضعیت">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="">سیستم صادرکننده:</label>
+              <input class="form-control" id="emitSystem" name="emitSystem" readonly [(ngModel)]="docModel.EmitSystem" placeholder="سیستم صادرکننده">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-8">
+            <div class="form-group">
+              <label for="">توضیحات:</label>
+              <input class="form-control" id="desc" name="desc" #desc="ngModel" [(ngModel)]="docModel.Desc" placeholder="توضیحات">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="">شماره فرعی: </label>
+              <input class="form-control" id="minorNum" #minorNum="ngModel" name="minorNum" [class.is-invalid]="minorNum.invalid || checkCode3(docModel.MinorNum)" [(ngModel)]="docModel.MinorNum" placeholder="شماره فرعی">
+            </div>
+          </div>
+        </div>
+      </form>
+      <div class="example-container mat-elevation-z8 rtlDir xx">
+        <table mat-table [dataSource]="dataSource" class="rtlDir">
+      
+          <ng-container matColumnDef="#"> 
+            <th mat-header-cell *matHeaderCellDef> # </th>
+            <td mat-cell *matCellDef="let element"> {{element.Num}} </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="کد معین">
+            <th mat-header-cell *matHeaderCellDef> کد معین </th>
+            <td mat-cell *matCellDef="let element"> {{element.Moein.CodeVal}} </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="کد تفصیلی">
+            <th mat-header-cell *matHeaderCellDef> کد تفصیلی </th>
+            <td mat-cell *matCellDef="let element"> {{element.Tafsili.CodeVal}} </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="بدهکار">
+            <th mat-header-cell *matHeaderCellDef> بدهکار </th>
+            <td mat-cell *matCellDef="let element"> {{element.Bedehkar}} </td>
+          </ng-container>
+                
+          <ng-container matColumnDef="بستانکار">
+            <th mat-header-cell *matHeaderCellDef> بستانکار </th>
+            <td mat-cell *matCellDef="let element"> {{element.Bestankar}} </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="شرح">
+            <th mat-header-cell *matHeaderCellDef> شرح </th>
+            <td mat-cell *matCellDef="let element"> {{element.Desc}} </td>
+          </ng-container>
+        <!--
+          <ng-container matColumnDef="مبلغ ارز">
+            <th mat-header-cell *matHeaderCellDef> مبلغ ارز </th>
+            <td mat-cell *matCellDef="let element"> {{element.currPrice}} </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="ارز">
+              <th mat-header-cell *matHeaderCellDef> ارز </th>
+              <td mat-cell *matCellDef="let element"> {{element.curr}} </td>
+          </ng-container>
+          
+          <ng-container matColumnDef="نرخ ارز">
+              <th mat-header-cell *matHeaderCellDef> نرخ ارز </th>
+              <td mat-cell *matCellDef="let element"> {{element.currRate}} </td>
+          </ng-container>
+        -->
+      
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.selected]="row.Num === selectID" (click)="selectID = row.Num"></tr>
+        </table>
+      </div>
+      <div>
+        <div>
+            <form #addItemForm="ngForm">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group" >
+                      <label for="">کد معین:</label> 
+                      <input  class="form-control" required id="moein" name="moein" #moein="ngModel" [class.is-invalid]="moein.invalid || (docItemModel.Moein != undefined && checkCode(docItemModel.Moein.CodeVal))" [(ngModel)]="docItemModel.Moein.CodeVal" placeholder="کد معین">
+                      <button (click)="openMoeinModal()">...</button>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="">کد تفصیلی:</label>
+                      <input class="form-control" id="tafsili" name="tafsili" #tafsil="ngModel" [class.is-invalid]="tafsil.invalid || (docItemModel.Tafsili != undefined && checkCode2(docItemModel.Tafsili.CodeVal))" [(ngModel)]="docItemModel.Tafsili.CodeVal" placeholder="کد تفصیلی">
+                      <button (click)="openTafsiliModal()">...</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="">بدهکار: </label>
+                      <input class="form-control" required type="number" min="0" id="bedehkar" name="bedehkar" #bedehkar="ngModel" [class.is-invalid]="bedehkar.invalid" [(ngModel)]="docItemModel.Bedehkar" placeholder="بدهکار">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="">بستانکار:</label>
+                      <input class="form-control" required type="number" min="0" id="bestankar" name="bestankar" #bestankar="ngModel" [class.is-invalid]="bestankar.invalid"
+                       [(ngModel)]="docItemModel.Bestankar" placeholder="بستانکار">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                          <label for="">شرح:</label>
+                          <input class="form-control" required id="descItem" name="descItem" #descItem="ngModel" [class.is-invalid]="descItem.invalid" [(ngModel)]="docItemModel.Desc" placeholder="شرح">
+                        </div>
+                      </div>
+                </div>
+                <!--
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="">مبلغ ارز: </label>
+                      <input class="form-control" type="number" id="currPrice" name="currPrice" [(ngModel)]="docItemModel.currPrice" placeholder="مبلغ ارز">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="">ارز:</label>
+                      <input class="form-control" id="curr" name="curr" [(ngModel)]="docItemModel.curr" placeholder="ارز">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="">نرخ ارز: </label>
+                      <input class="form-control" type="number" id="currRate" name="currRate" [(ngModel)]="docItemModel.currRate" placeholder="نرخ ارز">
+                    </div>
+                  </div>
+                </div>
+                -->
+              </form>
+        </div>
+    
+        <div class="features-btn">
+            <button [disabled]="addItemForm.form.invalid || !checkDocItem() || checkCode2(docItemModel.Tafsili.CodeVal) || checkCode(docItemModel.Moein.CodeVal)" class="feature-btn" (click)="createDocItem(); addItemForm.resetForm();">ایجاد قلم جدید</button>
+            <button [disabled]="selectID == -1 || count == 1" class="feature-btn" (click)="deleteItem()">حذف قلم</button>
+        </div>
+    </div>
+      <button [disabled]="createForm.invalid || docModel.DocItems.length == 0 || checkCode3(docModel.MinorNum)" type="submit" class="btn btn-primary" (click)="onSubmit();">ذخیره</button>
+      <button routerLink="/">برگشت به فهرست اسناد</button>
+      <button type="submit" class="btn btn-primary" (click)="onSubmitDraft()">ذخیره در حالت سند نیمه کاره</button>
+      <button class="btn btn-primary" (click)="onDelete()">انصراف</button>
+    </div>  
+
+{{docItemModel.Tafsili.ID | json}}

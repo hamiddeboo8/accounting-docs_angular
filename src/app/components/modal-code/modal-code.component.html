@@ -1,0 +1,21 @@
+ <div class="example-container mat-elevation-z8 rtlDir">
+    <table mat-table [dataSource]="dataSource" class="rtlDir">
+  
+      <ng-container matColumnDef="کد معین">
+        <th mat-header-cell *matHeaderCellDef> کد معین </th>
+        <td mat-cell *matCellDef="let element"> {{element.CodeVal}} </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="عنوان">
+        <th mat-header-cell *matHeaderCellDef> عنوان </th>
+        <td mat-cell *matCellDef="let element"> {{element.Name}} </td>
+    </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.selected]="selectID !== undefined && row.CodeVal === selectID.CodeVal" (click)="selectID = row"></tr>
+    </table>
+    <div class="features-btn">
+        <button class="feature-btn" (click)="onAdmit()">تایید</button>
+        <button class="feature-btn" (click)="this.modalRef.close(this.sentMoein)">انصراف</button>
+    </div>
+  </div>

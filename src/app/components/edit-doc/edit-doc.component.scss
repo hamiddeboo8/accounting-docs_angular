@@ -1,0 +1,146 @@
+.full-width{
+    width: 100%;
+}
+
+.top-padding{
+    padding-top: 3px;
+}
+
+.margin-left mat-radio-button:not(:first-child){
+    margin-left:10px;
+}
+
+.form-container{
+    margin: 100px;
+}
+
+.rtlDir {
+    direction: rtl;
+    justify-content: right;
+    text-align: right;
+}
+
+.inLine {
+    display: inline;
+}
+ .red {
+     color: red;
+ }
+
+ .x {
+     margin-right: 10px;
+     margin-left: 10px;
+ }
+ .long {
+     padding-left: 400px;
+ }
+
+ .full-width{
+    width: 100%;
+}
+
+.top-padding{
+    padding-top: 3px;
+}
+
+.margin-left mat-radio-button:not(:first-child){
+    margin-left:10px;
+}
+
+.form-container{
+    margin: 100px;
+}
+
+.rtlDir {
+    direction: rtl;
+    justify-content: right;
+    text-align: right;
+}
+
+.ltrDir {
+    direction: ltr;
+    justify-content: left;
+    text-align: left;
+}
+
+.inLine {
+    display: inline;
+}
+ .red {
+     color: red;
+ }
+
+ .x {
+     margin-right: 10px;
+     margin-left: 10px;
+ }
+ .long {
+     padding-left: 400px;
+ }
+ 
+ .example-container {
+    height: 650px;
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+  }
+  
+  .features-btn {
+    direction: rtl;
+    padding: 20px 20px 20px 20px;
+  }
+
+ .feature-btn {
+    direction: rtl;
+    margin: 0 10px 0 10px;
+  }
+
+  .selected {
+    background-color:burlywood!important;
+  }
+
+  .mat-row:hover {
+    background-color:blanchedalmond;
+  }
+
+  table {
+    width: 800px;
+  }
+  
+  td.mat-column-star {
+    width: 20px;
+    padding-right: 8px;
+  }
+  
+  th.mat-column-position, td.mat-column-position {
+    padding-left: 8px;
+  }
+  
+  .mat-table-sticky-border-elem-right {
+    border-left: 1px solid #e0e0e0;
+  }
+  
+  .mat-table-sticky-border-elem-left {
+    border-right: 1px solid #e0e0e0;
+  }
+  
+  .mat-header-cell {
+    padding: 8px 10px 8px 50px;
+    direction: rtl;
+    text-align: center;
+
+  }
+  .mat-cell {
+    padding: 8px 10px 8px 50px;
+    direction: rtl;
+    align-content: center;
+    text-align: center;
+  }
+
+  .rtlDir {
+    direction: rtl;
+  }
+
+  .xx {
+      height: 350px;
+  }
