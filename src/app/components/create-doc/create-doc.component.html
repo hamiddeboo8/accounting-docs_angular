@@ -88,22 +88,21 @@
             <th mat-header-cell *matHeaderCellDef> شرح </th>
             <td mat-cell *matCellDef="let element"> {{element.Desc}} </td>
           </ng-container>
-        <!--
-          <ng-container matColumnDef="مبلغ ارز">
-            <th mat-header-cell *matHeaderCellDef> مبلغ ارز </th>
-            <td mat-cell *matCellDef="let element"> {{element.currPrice}} </td>
+          <ng-container matColumnDef="مقدار ارز">
+            <th mat-header-cell *matHeaderCellDef> مقدار ارز </th>
+            <td mat-cell *matCellDef="let element"> {{element.CurrPrice}} </td>
           </ng-container>
       
           <ng-container matColumnDef="ارز">
               <th mat-header-cell *matHeaderCellDef> ارز </th>
-              <td mat-cell *matCellDef="let element"> {{element.curr}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.Curr}} </td>
           </ng-container>
           
           <ng-container matColumnDef="نرخ ارز">
               <th mat-header-cell *matHeaderCellDef> نرخ ارز </th>
-              <td mat-cell *matCellDef="let element"> {{element.currRate}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.CurrRate}} </td>
           </ng-container>
-        -->
+
       
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.selected]="row.Num === selectID" (click)="selectID = row.Num"></tr>
@@ -129,17 +128,29 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-md-4">
+                  <div class="col-md-4" *ngIf="docItemModel.Moein.Curr">
                     <div class="form-group">
-                      <label for="">بدهکار: </label>
-                      <input class="form-control" required type="number" min="0" id="bedehkar" name="bedehkar" #bedehkar="ngModel" [class.is-invalid]="bedehkar.invalid" [(ngModel)]="docItemModel.Bedehkar" placeholder="بدهکار">
+                      <label for="">مبلغ: </label>
+                      <input class="form-control" required readonly type="number" min="0" id="Meghdar" name="Meghdar" #Meghdar="ngModel" [class.is-invalid]="Meghdar.invalid" [(ngModel)]="this.meghdar" placeholder="مبلغ">
+                    </div>
+                  </div>
+                  <div class="col-md-4" *ngIf="!docItemModel.Moein.Curr">
+                    <div class="form-group">
+                      <label for="">مبلغ: </label>
+                      <input class="form-control" required type="number" min="0" id="Meghdar" name="Meghdar" #Meghdar="ngModel" [class.is-invalid]="Meghdar.invalid" [(ngModel)]="this.meghdar" placeholder="مبلغ">
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group">
-                      <label for="">بستانکار:</label>
-                      <input class="form-control" required type="number" min="0" id="bestankar" name="bestankar" #bestankar="ngModel" [class.is-invalid]="bestankar.invalid"
-                       [(ngModel)]="docItemModel.Bestankar" placeholder="بستانکار">
+                      <label for="">بدهکار یا بستانکار:</label>
+                      <mat-radio-group [(ngModel)]="bedehbestan" [ngModelOptions]="{standalone: true}">
+                        <mat-radio-button class="example-margin" value="false">
+                          بدهکار
+                        </mat-radio-button>
+                        <mat-radio-button class="example-margin" value="true">
+                          بستانکار
+                        </mat-radio-button>
+                      </mat-radio-group>
                     </div>
                   </div>
                 </div>
@@ -151,40 +162,55 @@
                         </div>
                       </div>
                 </div>
-                <!--
-                <div class="row">
+                
+                <div class="row" *ngIf="docItemModel.Moein.Curr">
                   <div class="col-md-4">
                     <div class="form-group">
                       <label for="">مبلغ ارز: </label>
-                      <input class="form-control" type="number" id="currPrice" name="currPrice" [(ngModel)]="docItemModel.currPrice" placeholder="مبلغ ارز">
+                      <input class="form-control" min="0" type="number" id="currPrice" name="currPrice" #currPrice="ngModel" [(ngModel)]="docItemModel.CurrPrice" [class.is-invalid]="currPrice.invalid" placeholder="مبلغ ارز">
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group">
                       <label for="">ارز:</label>
-                      <input class="form-control" id="curr" name="curr" [(ngModel)]="docItemModel.curr" placeholder="ارز">
+                      <input class="form-control" id="curr" name="curr" #curr="ngModel" [(ngModel)]="docItemModel.Curr" [class.is-invalid]="curr.invalid" placeholder="ارز">
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group">
                       <label for="">نرخ ارز: </label>
-                      <input class="form-control" type="number" id="currRate" name="currRate" [(ngModel)]="docItemModel.currRate" placeholder="نرخ ارز">
+                      <input class="form-control" min="0" type="number" id="currRate" name="currRate" #currRate="ngModel" [(ngModel)]="docItemModel.CurrRate" [class.is-invalid]="currRate.invalid" placeholder="نرخ ارز">
+                      <button [disabled]="docItemModel.Curr == '' || docItemModel.CurrPrice == 0 || docItemModel.CurrRate == 0" (click)="convertCurr()">انتقال به بدهکار/بستانکار</button>
                     </div>
                   </div>
                 </div>
-                -->
+              
               </form>
         </div>
     
         <div class="features-btn">
-            <button [disabled]="addItemForm.form.invalid || !checkDocItem() || checkCode2(docItemModel.Tafsili.CodeVal) || checkCode(docItemModel.Moein.CodeVal)" class="feature-btn" (click)="createDocItem(); addItemForm.resetForm();">ایجاد قلم جدید</button>
+            <button [disabled]="this.bedehbestan == '' || addItemForm.form.invalid || !checkDocItem() || checkCode2(docItemModel.Tafsili.CodeVal) || checkCode(docItemModel.Moein.CodeVal)" class="feature-btn" (click)="createDocItem(); addItemForm.resetForm();">ایجاد قلم جدید</button>
             <button [disabled]="selectID == -1 || count == 1" class="feature-btn" (click)="deleteItem()">حذف قلم</button>
         </div>
     </div>
-      <button [disabled]="createForm.invalid || docModel.DocItems.length == 0 || checkCode3(docModel.MinorNum)" type="submit" class="btn btn-primary" (click)="onSubmit();">ذخیره</button>
-      <button routerLink="/">برگشت به فهرست اسناد</button>
-      <button type="submit" class="btn btn-primary" (click)="onSubmitDraft()">ذخیره در حالت سند نیمه کاره</button>
-      <button class="btn btn-primary" (click)="onDelete()">انصراف</button>
-    </div>  
-
-{{docItemModel.Tafsili.ID | json}}
+    <form #showForm="ngForm" *ngIf="selectID > 0">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="">معین: </label>
+            <input readonly [(ngModel)]="docModel.DocItems[selectID - 1].Moein.Name" [ngModelOptions]="{standalone: true}">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="">تفصیلی: </label>
+            <input readonly [(ngModel)]="docModel.DocItems[selectID - 1].Tafsili.Name" [ngModelOptions]="{standalone: true}">
+          </div>
+        </div>
+      </div>
+    </form>  
+    <button [disabled]="createForm.invalid || docModel.DocItems.length == 0 || checkCode3(docModel.MinorNum)" type="submit" class="btn btn-primary" (click)="onSubmit();">ذخیره</button>
+    <button routerLink="/">برگشت به فهرست اسناد</button>
+    <button type="submit" class="btn btn-primary" (click)="onSubmitDraft()">ذخیره در حالت سند نیمه کاره</button>
+    <button class="btn btn-primary" (click)="onDelete()">انصراف</button>
+  </div>

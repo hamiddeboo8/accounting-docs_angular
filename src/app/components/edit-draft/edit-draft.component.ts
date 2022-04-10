@@ -25,6 +25,9 @@ export class EditDraftComponent implements OnInit {
 
   errors = null;
 
+  bedehbestan: string = ""
+  meghdar: number = 0
+
   modalRef: MdbModalRef<ModalCodeComponent> | null = null;
 
   total_tafsili: Code[] = []
@@ -36,10 +39,10 @@ export class EditDraftComponent implements OnInit {
     'کد تفصیلی',
     'بدهکار',
     'بستانکار',
-    'شرح'/*,
-    'مبلغ ارز',
+    'شرح',
+    'مقدار ارز',
     'ارز',
-    'نرخ ارز',*/
+    'نرخ ارز',
   ];
 
 
@@ -120,6 +123,15 @@ export class EditDraftComponent implements OnInit {
       if(tafsilIdx != -1){
         const moein = {...this.total_moein[moeinIdx]}
         const tafsili = {...this.total_tafsili[tafsilIdx]}
+        if(this.bedehbestan != undefined){
+          if(this.bedehbestan == 'true') {
+            this.docItemModel.Bestankar = this.meghdar
+            this.docItemModel.Bedehkar = 0
+          } else {
+            this.docItemModel.Bestankar = 0
+            this.docItemModel.Bedehkar = this.meghdar
+          }
+        }
         const newItem ={
           ID: this.count,
           Num: this.count,
@@ -222,7 +234,7 @@ export class EditDraftComponent implements OnInit {
   }
 
   checkDocItem(): boolean {
-    if (this.docItemModel.Bedehkar == 0 && this.docItemModel.Bestankar == 0){
+    if (this.meghdar == 0){
       return false
     }
     return true
@@ -238,6 +250,10 @@ export class EditDraftComponent implements OnInit {
     this.docService.saveDocDraft(this.docModel).subscribe(
       (doc) => this.router.navigateByUrl('/'), 
       (error) => alert(error.message))
+  }
+
+  convertCurr() {
+    this.meghdar = this.docItemModel.CurrPrice * this.docItemModel.CurrRate
   }
 
 }

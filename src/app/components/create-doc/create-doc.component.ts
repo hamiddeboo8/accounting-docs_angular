@@ -23,8 +23,10 @@ export class CreateDocComponent implements OnInit {
   dataSource: MatTableDataSource<DocItem>
   flag: number = 0;
   selectID: number = -1;
-  createForm!: NgForm;
-  addItemForm!: NgForm;
+
+  bedehbestan: string = ""
+  meghdar: number = 0
+
   errors = null;
 
   dated = new Date()
@@ -40,10 +42,10 @@ export class CreateDocComponent implements OnInit {
     'کد تفصیلی',
     'بدهکار',
     'بستانکار',
-    'شرح'/*,
-    'مبلغ ارز',
+    'شرح',
+    'مقدار ارز',
     'ارز',
-    'نرخ ارز',*/
+    'نرخ ارز',
   ];
 
 
@@ -115,6 +117,15 @@ export class CreateDocComponent implements OnInit {
       if(tafsilIdx != -1){
         const moein = {...this.total_moein[moeinIdx]}
         const tafsili = {...this.total_tafsili[tafsilIdx]}
+        if(this.bedehbestan != undefined) {
+          if(this.bedehbestan == 'true') {
+            this.docItemModel.Bestankar = this.meghdar
+            this.docItemModel.Bedehkar = 0
+          } else {
+            this.docItemModel.Bestankar = 0
+            this.docItemModel.Bedehkar = this.meghdar
+          }
+        }
         const newItem ={
           ID: this.count,
           Num: this.count,
@@ -128,7 +139,7 @@ export class CreateDocComponent implements OnInit {
           CurrRate: this.docItemModel.CurrRate,
           SaveDB: this.docItemModel.SaveDB
         }
-     
+        console.log(newItem)
         this.docItemModel = new DocItem(this.count, this.count, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
         this.addItem(newItem)
       } else {
@@ -217,7 +228,7 @@ export class CreateDocComponent implements OnInit {
   }
 
   checkDocItem(): boolean {
-    if (this.docItemModel.Bedehkar == 0 && this.docItemModel.Bestankar == 0){
+    if (this.meghdar == 0){
       return false
     }
     return true
@@ -233,6 +244,10 @@ export class CreateDocComponent implements OnInit {
     this.docService.saveDocDraft(this.docModel).subscribe(
       (doc) => this.router.navigateByUrl('/'), 
       (error) => alert(error))
+  }
+
+  convertCurr() {
+    this.meghdar = this.docItemModel.CurrPrice * this.docItemModel.CurrRate
   }
 
 }

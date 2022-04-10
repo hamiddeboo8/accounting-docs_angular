@@ -23,6 +23,8 @@ export class EditDocComponent implements OnInit {
   createDocValidity: boolean = false
   errors = null;
 
+  bedehbestan: string = ""
+  meghdar: number = 0
 
   modalRef: MdbModalRef<ModalCodeComponent> | null = null;
 
@@ -35,10 +37,10 @@ export class EditDocComponent implements OnInit {
     'کد تفصیلی',
     'بدهکار',
     'بستانکار',
-    'شرح'/*,
-    'مبلغ ارز',
+    'شرح',
+    'مقدار ارز',
     'ارز',
-    'نرخ ارز',*/
+    'نرخ ارز',
   ];
 
   constructor(private docService: DocService, private route: ActivatedRoute, private router: Router, private modalService: MdbModalService) { }
@@ -147,6 +149,15 @@ export class EditDocComponent implements OnInit {
       if(tafsilIdx != -1){
         const moein = {...this.total_moein[moeinIdx]}
         const tafsili = {...this.total_tafsili[tafsilIdx]}
+        if(this.bedehbestan != undefined){
+          if(this.bedehbestan == 'true') {
+            this.docItemModel.Bestankar = this.meghdar
+            this.docItemModel.Bedehkar = 0
+          } else {
+            this.docItemModel.Bestankar = 0
+            this.docItemModel.Bedehkar = this.meghdar
+          }
+        }
         const newItem ={
           ID: this.x,
           Num: this.x,
@@ -219,10 +230,14 @@ export class EditDocComponent implements OnInit {
   }
 
   checkDocItem(): boolean {
-    if (this.docItemModel.Bedehkar == 0 && this.docItemModel.Bestankar == 0){
+    if (this.meghdar == 0){
       return false
     }
     return true
+  }
+
+  convertCurr() {
+    this.meghdar = this.docItemModel.CurrPrice * this.docItemModel.CurrRate
   }
 
 }

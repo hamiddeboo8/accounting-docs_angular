@@ -28,10 +28,10 @@ export class ReadDocComponent implements OnInit {
     'کد تفصیلی',
     'بدهکار',
     'بستانکار',
-    'شرح'/*,
-    'مبلغ ارز',
+    'شرح',
+    'مقدار ارز',
     'ارز',
-    'نرخ ارز',*/
+    'نرخ ارز',
   ];
 
   constructor(private docService: DocService, private route: ActivatedRoute, private router: Router) { 

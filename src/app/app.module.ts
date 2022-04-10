@@ -32,6 +32,8 @@ import { MatTableModule } from '@angular/material/table';
 import { HttpClientModule } from '@angular/common/http';
 import { ModalCodeTafsiliComponent } from './components/modal-code-tafsili/modal-code-tafsili.component';
 import { NgPersianDatepickerModule } from 'ng-persian-datepicker';
+import {MatRadioModule, MAT_RADIO_DEFAULT_OPTIONS} from '@angular/material/radio';
+
 
 
 
@@ -80,7 +82,8 @@ const appRoutes: Routes = [
     FormsModule,
     MatTableModule,
     HttpClientModule,
-    NgPersianDatepickerModule
+    NgPersianDatepickerModule,
+    MatRadioModule
   ],
   providers: [],
   bootstrap: [AppComponent]
