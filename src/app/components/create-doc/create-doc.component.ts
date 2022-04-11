@@ -4,10 +4,8 @@ import { convertFrom, Doc } from '../../doc';
 import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { Code, DocItem } from '../../doc-item';
-import { NgForm } from '@angular/forms';
 import { ModalCodeComponent } from '../modal-code/modal-code.component';
 import { MdbModalRef, MdbModalService } from 'mdb-angular-ui-kit/modal';
-import { ModalCodeTafsiliComponent } from '../modal-code-tafsili/modal-code-tafsili.component';
 
 @Component({
   selector: 'app-create-doc',
@@ -234,7 +232,7 @@ export class CreateDocComponent implements OnInit {
     return true
   }
 
-  onDelete(): void {
+  /*onDelete(): void {
     this.docService.removeDoc(this.docModel).subscribe(
       (doc) => this.router.navigateByUrl('/'), 
       (error) => alert(error.message))
@@ -244,7 +242,7 @@ export class CreateDocComponent implements OnInit {
     this.docService.saveDocDraft(this.docModel).subscribe(
       (doc) => this.router.navigateByUrl('/'), 
       (error) => alert(error))
-  }
+  }*/
 
   convertCurr() {
     this.meghdar = this.docItemModel.CurrPrice * this.docItemModel.CurrRate

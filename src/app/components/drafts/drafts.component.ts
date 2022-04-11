@@ -29,22 +29,22 @@ export class DraftsComponent implements OnInit {
   constructor (private docService: DocService, private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit(): void {
-    this.docService.getDraftDocs().subscribe((docs) => {
-      let docs_2: Doc[] = []
-      for (let i = 0; docs != null && i < docs.length; i++) {
-        let doc = docs[i]
-        docs_2.push(convertFrom(doc))
-      }
-      this.dataSource = docs_2}, 
-      (error) => {
-        this.errors = error
-      })
+    // this.docService.getDraftDocs().subscribe((docs) => {
+    //   let docs_2: Doc[] = []
+    //   for (let i = 0; docs != null && i < docs.length; i++) {
+    //     let doc = docs[i]
+    //     docs_2.push(convertFrom(doc))
+    //   }
+    //   this.dataSource = docs_2}, 
+    //   (error) => {
+    //     this.errors = error
+    //   })
   }
 
   Edit(id: number): void{
     if(id !== 0)
     { 
-      this.docService.editDraftDoc(id)
+      // this.docService.editDraftDoc(id)
     }
     else{
       alert("تغییر سند امکان پذیر نیست")

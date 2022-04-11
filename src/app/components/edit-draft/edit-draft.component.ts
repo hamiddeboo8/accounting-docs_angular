@@ -52,26 +52,26 @@ export class EditDraftComponent implements OnInit {
 
   ngOnInit(): void {
     this.dataSource.data = this.docModel?.DocItems
-    this.route.paramMap.subscribe(params => {
-       this.docService.getDraft(params.get('id')).subscribe(doc =>{
-        this.docModel = convertFrom(doc);
-        this.dataSource.data = this.docModel?.DocItems
-        if (this.docModel?.DocItems != null){
-          this.count = this.docModel?.DocItems.length + 1
-        }
-        this.docItemModel.Num = this.count
-      },
-      (error) => {
-        this.errors = error
-      })   
-    }
-    ,(error) => alert(error.message))
-    this.docService.getMoeins().subscribe((items) => {
-      this.total_moein = items
-    }, (error) => alert(error.message))
-    this.docService.getTafsilis().subscribe((items) => {
-      this.total_tafsili = items
-    }, (error) => alert(error.message))
+    // this.route.paramMap.subscribe(params => {
+    //    this.docService.getDraft(params.get('id')).subscribe(doc =>{
+    //     this.docModel = convertFrom(doc);
+    //     this.dataSource.data = this.docModel?.DocItems
+    //     if (this.docModel?.DocItems != null){
+    //       this.count = this.docModel?.DocItems.length + 1
+    //     }
+    //     this.docItemModel.Num = this.count
+    //   },
+    //   (error) => {
+    //     this.errors = error
+    //   })   
+    // }
+    // ,(error) => alert(error.message))
+    // this.docService.getMoeins().subscribe((items) => {
+    //   this.total_moein = items
+    // }, (error) => alert(error.message))
+    // this.docService.getTafsilis().subscribe((items) => {
+    //   this.total_tafsili = items
+    // }, (error) => alert(error.message))
   }
 
   openMoeinModal() {
@@ -240,17 +240,17 @@ export class EditDraftComponent implements OnInit {
     return true
   }
 
-  onDelete(): void {
-    this.docService.removeDoc(this.docModel).subscribe(
-      (doc) => this.router.navigateByUrl('/'), 
-      (error) => alert(error.message))
-  }
+  // onDelete(): void {
+  //   this.docService.removeDoc(this.docModel).subscribe(
+  //     (doc) => this.router.navigateByUrl('/'), 
+  //     (error) => alert(error.message))
+  // }
 
-  onSubmitDraft(): void {
-    this.docService.saveDocDraft(this.docModel).subscribe(
-      (doc) => this.router.navigateByUrl('/'), 
-      (error) => alert(error.message))
-  }
+  // onSubmitDraft(): void {
+  //   this.docService.saveDocDraft(this.docModel).subscribe(
+  //     (doc) => this.router.navigateByUrl('/'), 
+  //     (error) => alert(error.message))
+  // }
 
   convertCurr() {
     this.meghdar = this.docItemModel.CurrPrice * this.docItemModel.CurrRate

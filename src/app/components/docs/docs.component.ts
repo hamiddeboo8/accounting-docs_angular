@@ -68,9 +68,9 @@ export class DocsComponent implements OnInit {
     this.router.navigateByUrl('/create')
   }
 
-  Drafts(): void{
+  /*Drafts(): void{
     this.router.navigateByUrl('/drafts');
-  }
+  }*/
 
   Read(id: number): void {
     this.flag = 0
