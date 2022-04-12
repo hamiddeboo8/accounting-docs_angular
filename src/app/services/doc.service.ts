@@ -19,7 +19,8 @@ export class DocService {
   
   moeins: Code[] = []
   tafsilis: Code[] = []
-  docs: Doc[] = []
+  persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g]
+  arabicNumbers  = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g]
 
   errors = null
 
@@ -43,6 +44,12 @@ export class DocService {
     return this.http.get<DocToSend[]>(this.apiURL).pipe(
       catchError(this.errorHandler2),
       retry(5)
+    )
+  }
+
+  filterByMinorNum(filter: string): Observable<DocToSend[]> {
+    return this.http.get<DocToSend[]>(`${this.apiURL}/filter/minor_num/${filter}`).pipe(
+      catchError(this.errorHandler2)
     )
   }
 
@@ -90,11 +97,23 @@ export class DocService {
   )  
 }
 
-  createDoc(): Observable<DocToSend> {
-    return this.http.get<DocToSend>(`${this.apiURL}/create`).pipe(
-      catchError(this.errorHandler3),
-      retry(5)
-    ) 
+  createDoc(): Doc {
+    let today = new Date().toLocaleDateString('fa-IR')
+    const rExp : RegExp = new RegExp("(.+)/(.+)/(.+)");
+    var matches = rExp.exec(today)
+    let doc: Doc = new Doc(0, 1, "", 0, "", "", "موقت", 0, "عمومی", "سیستم حسابداری", [])
+    if (matches != null) {
+      let year = +this.fixNumbers(matches[1])
+      let month = +this.fixNumbers(matches[2])
+      let day = +this.fixNumbers(matches[3])
+      let hour = 0; let minute = 0; let second = 0;
+      var date = year.toString().concat("-").concat(month.toString()).concat('-').concat(day.toString())
+      date = date.concat(" ").concat(hour.toString()).concat(":").concat(minute.toString()).concat(":").concat(second.toString())
+      doc.Date = date
+    } else {
+      alert("initialize fails")
+    }
+    return doc
   }
 
   validateDocItem(item: DocItem): Observable<Codes> {
@@ -103,20 +122,34 @@ export class DocService {
     )
   }
 
-  updateMoeins(): void {
-    let x = this.http.get<Code[]>(`${this.apiURL}/moeins`).pipe(
-      catchError(this.errorHandler3),
-      retry(5)
-    )
-    x.subscribe((items) => this.moeins = items, (error) => alert(error.message))
+  fixNumbers(str: any) {
+      if(typeof str === 'string')
+      {
+        for(var i=0; i<10; i++)
+        {
+          str = str.replace(this.persianNumbers[i], i).replace(this.arabicNumbers[i], i);
+        }
+      }
+    return str;
   }
 
-  updateTafsilis(): void {
-    let x = this.http.get<Code[]>(`${this.apiURL}/tafsilis`).pipe(
+  async updateMoeins(): Promise<Code[]> {
+    let x
+    x = await this.http.get<Code[]>(`${this.apiURL}/moeins`).pipe(
       catchError(this.errorHandler3),
       retry(5)
-    ) 
-    x.subscribe((items) => this.tafsilis = items, (error) => alert(error.message))
+    ).toPromise().catch(() => {x = this.moeins; return x})
+    this.moeins = x
+    return <Code[]>x
+  }
+
+  async updateTafsilis(): Promise<Code[]> {
+    let x
+    x = await this.http.get<Code[]>(`${this.apiURL}/tafsilis`).pipe(
+      catchError(this.errorHandler3),
+    ).toPromise().catch(() => {x = this.tafsilis; return x})
+    this.tafsilis = x
+    return <Code[]>x
   }
 
   getMoeins(): Code[] {
@@ -132,12 +165,10 @@ export class DocService {
   }
 
   errorHandler2(errorHandler2: HttpErrorResponse): Observable<DocToSend[]> {
-    console.log(errorHandler2)
     throw new Error(errorHandler2.error.message);
   }
 
   errorHandler3(errorHandler3: HttpErrorResponse): Observable<any> {
-    console.log(errorHandler3)
     throw new Error(errorHandler3.error.message);
   }
 

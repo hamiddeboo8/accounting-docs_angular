@@ -148,6 +148,20 @@ export class EditDocComponent implements OnInit, OnDestroy  {
   }
 
   createDocItem() {
+    if (this.bedehbestan != undefined) {
+      if (this.bedehbestan == 'true') {
+        this.docItemModel.Bedehkar = 0
+        this.docItemModel.Bestankar = this.meghdar
+      } else {
+        this.docItemModel.Bedehkar = this.meghdar
+        this.docItemModel.Bestankar = 0
+      }
+    }
+    const moein: Code = { ...this.docItemModel.Moein}
+    const tafsili: Code = { ...this.docItemModel.Tafsili}
+    this.docItemModel.Moein = moein
+    this.docItemModel.Tafsili = tafsili
+    let desc = this.docItemModel.Desc
     this.docService.validateDocItem(this.docItemModel).subscribe(
       (item) => {
         const newItem ={
@@ -157,7 +171,7 @@ export class EditDocComponent implements OnInit, OnDestroy  {
           Tafsili: item.Tafsili,
           Bedehkar: this.docItemModel.Bedehkar,
           Bestankar: this.docItemModel.Bestankar,
-          Desc: this.docItemModel.Desc,
+          Desc: desc,
           CurrPrice: this.docItemModel.CurrPrice,
           Curr: this.docItemModel.Curr,
           CurrRate: this.docItemModel.CurrRate,
@@ -228,10 +242,8 @@ export class EditDocComponent implements OnInit, OnDestroy  {
   }
 
   updateList() {
-    this.docService.updateMoeins()
-    this.docService.updateTafsilis()
-    this.total_moein = this.docService.getMoeins()
-    this.total_tafsili = this.docService.getTafsilis()
+    this.docService.updateMoeins().then(m => this.total_moein = m)
+    this.docService.updateTafsilis().then(t => this.total_tafsili = t)
   }
 
 }

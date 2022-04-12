@@ -14,6 +14,7 @@ export class DocsComponent implements OnInit{
   dataSource: Doc[] = [];
   flag: number = 0;
   errors = null
+  MinorNum = ""
 
   displayedColumns = [
     'شماره سند',
@@ -134,6 +135,46 @@ export class DocsComponent implements OnInit{
     }, (error) => {
       alert(error.message)
     })
+  }
+
+  checkCode3(str: string): boolean {
+    if (str == null || str.length == 0) {
+      return false
+    }
+    for (let i = 0; i < str.length; i++) {
+      if (str.charAt(i) < '0' || str.charAt(i) > '9'){
+        return true
+      }
+    }
+    return false
+  }
+
+  Filter(): void {
+    this.docService.filterByMinorNum(this.MinorNum).subscribe((docs) => {
+      let docs_2: Doc[] = []
+      for (let i = 0; docs != null && i < docs.length; i++) {
+        let doc = docs[i]
+        docs_2.push(convertFrom(doc))
+      }
+      this.dataSource = docs_2
+    }, 
+      (error) => {
+        this.errors = error
+    })
+  }
+
+  FilterBack(): void {
+    this.docService.getDocs().subscribe((docs) => {
+      let docs_2: Doc[] = []
+      for (let i = 0; docs != null && i < docs.length; i++) {
+        let doc = docs[i]
+        docs_2.push(convertFrom(doc))
+      }
+      this.dataSource = docs_2
+    }, 
+      (error) => {
+        this.errors = error
+      })
   }
 
 }

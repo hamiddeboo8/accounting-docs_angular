@@ -128,13 +128,7 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-md-4" *ngIf="docItemModel.Moein.Curr">
-                    <div class="form-group">
-                      <label for="">مبلغ: </label>
-                      <input class="form-control" required readonly type="number" min="0" id="Meghdar" name="Meghdar" #Meghdar="ngModel" [class.is-invalid]="Meghdar.invalid" [(ngModel)]="this.meghdar" placeholder="مبلغ">
-                    </div>
-                  </div>
-                  <div class="col-md-4" *ngIf="!docItemModel.Moein.Curr">
+                  <div class="col-md-4">
                     <div class="form-group">
                       <label for="">مبلغ: </label>
                       <input class="form-control" required type="number" min="0" id="Meghdar" name="Meghdar" #Meghdar="ngModel" [class.is-invalid]="Meghdar.invalid" [(ngModel)]="this.meghdar" placeholder="مبلغ">
@@ -162,8 +156,10 @@
                         </div>
                       </div>
                 </div>
+                {{docItemModel.Desc}}
+                {{docModel.DocItems | json}}
                 
-                <div class="row" *ngIf="docItemModel.Moein.Curr">
+                <div class="row">
                   <div class="col-md-4">
                     <div class="form-group">
                       <label for="">مبلغ ارز: </label>

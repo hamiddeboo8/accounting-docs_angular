@@ -88,7 +88,6 @@ export function convertTo(doc: Doc): DocToSend {
         minute = +matches[5]
         second = +matches[6]
     }
-    console.log(year)
     const docSend = new DocToSend(doc.ID, doc.DocNum, year, month, day, hour, minute, second, doc.AtfNum, doc.MinorNum, doc.Desc, doc.State, doc.DailyNum, doc.DocType, doc.EmitSystem, doc.DocItems)
     return docSend
 }

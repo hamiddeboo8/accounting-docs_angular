@@ -2,6 +2,11 @@
     {{ errors }} 
   </div>
   <div *ngIf="!errors">
+    <div class="features-btn">
+      <input class="form-control" id="minorNum" #minorNum="ngModel" name="minorNum" [class.is-invalid]="minorNum.invalid || checkCode3(MinorNum)" [(ngModel)]="MinorNum" placeholder="شماره فرعی">
+      <button class="feature-btn" [disabled]="checkCode3(MinorNum) || MinorNum == ''" (click)="Filter()">فیلتر اسناد با شماره فرعی</button>
+      <button class="feature-btn" (click)="FilterBack()">نمایش تمام اسناد</button>
+    </div>
       <div class="example-container mat-elevation-z8 rtlDir">
       <table mat-table [dataSource]="dataSource" class="rtlDir">
     
@@ -65,7 +70,6 @@
       <button class="feature-btn" (click)="Create()">ایجاد سند جدید</button>
       <button class="feature-btn" (click)="Read(selectID)">مرور سند</button>
       <button class="feature-btn" (click)="Delete(selectID)">حذف سند</button>
-      <button class="feature-btn" (click)="Update()">بروزرسانی لیست اسناد</button>
       <!-- <button class="feature-btn" (click)="Drafts()">سندهای نیمه کاره</button>  -->
       <button [disabled]="selectID == -1" class="btn btn-primary" (click)="changeState()">تغییر وضعیت به دائمی</button>
     </div>
