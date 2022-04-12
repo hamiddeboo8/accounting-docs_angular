@@ -23,3 +23,10 @@ export class Code {
         public Curr: boolean
     ){}
 }
+
+export class Codes {
+    constructor(
+        public Moein: Code,
+        public Tafsili: Code
+    ){}
+}

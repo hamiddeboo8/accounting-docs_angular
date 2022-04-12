@@ -52,18 +52,14 @@ export class CreateDocComponent implements OnInit {
     this.dataSource = new MatTableDataSource(this.docModel?.DocItems)
    }
 
+  // change not to request for initial
   ngOnInit(): void {
     this.docService.createDoc().subscribe((doc) => {
-      console.log(doc)
       this.docModel = convertFrom(doc)
     }
     , (error) => alert(error.message))
-    this.docService.getMoeins().subscribe((items) => {
-      this.total_moein = items
-    }, (error) => alert(error.message))
-    this.docService.getTafsilis().subscribe((items) => {
-      this.total_tafsili = items
-    }, (error) => alert(error.message))
+    this.total_moein = this.docService.getMoeins()
+    this.total_tafsili = this.docService.getTafsilis()
   }
 
   openMoeinModal() {
@@ -96,40 +92,13 @@ export class CreateDocComponent implements OnInit {
 
 
   createDocItem() {
-    let moeinIdx = -1
-    let tafsilIdx = -1
-    for (let i = 0; i < this.total_moein.length; i++) {
-      const element = this.total_moein[i];
-      if(element.CodeVal == this.docItemModel.Moein.CodeVal){
-        moeinIdx = i
-        break
-      }
-    }
-    for (let i = 0; i < this.total_tafsili.length; i++) {
-      const element = this.total_tafsili[i];
-      if(element.CodeVal == this.docItemModel.Tafsili.CodeVal){
-        tafsilIdx = i
-        break
-      }
-    }
-    if(moeinIdx != -1){  
-      if(tafsilIdx != -1){
-        const moein = {...this.total_moein[moeinIdx]}
-        const tafsili = {...this.total_tafsili[tafsilIdx]}
-        if(this.bedehbestan != undefined) {
-          if(this.bedehbestan == 'true') {
-            this.docItemModel.Bestankar = this.meghdar
-            this.docItemModel.Bedehkar = 0
-          } else {
-            this.docItemModel.Bestankar = 0
-            this.docItemModel.Bedehkar = this.meghdar
-          }
-        }
+    this.docService.validateDocItem(this.docItemModel).subscribe(
+      (item) => {
         const newItem ={
           ID: this.count,
           Num: this.count,
-          Moein: moein,
-          Tafsili: tafsili,
+          Moein: item.Moein,
+          Tafsili: item.Tafsili,
           Bedehkar: this.docItemModel.Bedehkar,
           Bestankar: this.docItemModel.Bestankar,
           Desc: this.docItemModel.Desc,
@@ -139,14 +108,13 @@ export class CreateDocComponent implements OnInit {
           SaveDB: this.docItemModel.SaveDB
         }
         this.docItemModel = new DocItem(this.count, this.count, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
-        this.addItem(newItem)
-      } else {
-        alert ("کد تفصیلی اشتباه است.")
-      }
-    } else {
-      alert ("کد معین اشتباه است.")
-    }
-
+        this.count += 1
+        const data = this.dataSource.data;
+        data.push(newItem);
+        this.dataSource.data = data;
+        this.docModel.DocItems = data;
+      }, (error) => alert(error.message)
+    )
   }
 
   onSubmit(): void {
@@ -164,14 +132,6 @@ export class CreateDocComponent implements OnInit {
     }
     return false
   }
-
-  addItem(item: DocItem){
-    this.count += 1
-    const data = this.dataSource.data;
-    data.push(item);
-    this.dataSource.data = data;
-    this.docModel.DocItems = data;
-  } 
 
   deleteItem(){
     this.count -= 1
@@ -236,12 +196,10 @@ export class CreateDocComponent implements OnInit {
   }
 
   updateList() {
-    this.docService.getMoeins().subscribe((items) => {
-      this.total_moein = items
-    }, (error) => alert(error.message))
-    this.docService.getTafsilis().subscribe((items) => {
-      this.total_tafsili = items
-    }, (error) => alert(error.message))
+    this.docService.updateMoeins()
+    this.docService.updateTafsilis()
+    this.total_moein = this.docService.getMoeins()
+    this.total_tafsili = this.docService.getTafsilis()
   }
 
 }

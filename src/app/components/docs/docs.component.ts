@@ -15,8 +15,6 @@ export class DocsComponent implements OnInit{
   flag: number = 0;
   errors = null
 
-
-
   displayedColumns = [
     'شماره سند',
     'شماره عطف',
@@ -40,7 +38,6 @@ export class DocsComponent implements OnInit{
         docs_2.push(convertFrom(doc))
       }
       this.dataSource = docs_2
-      console.log("Docs: ", docs_2)
     }, 
       (error) => {
         this.errors = error
@@ -130,7 +127,6 @@ export class DocsComponent implements OnInit{
           docs_2.push(convertFrom(doc))
         }
         this.dataSource = docs_2
-        console.log("Docs Change state: ", docs_2)
       }, 
         (error) => {
           this.errors = error

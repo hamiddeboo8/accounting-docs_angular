@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { convertTo, convertToEdit, Doc, DocEdit, DocToSend } from '../doc';
+import { convertFrom, convertTo, convertToEdit, Doc, DocEdit, DocToSend } from '../doc';
 import { Observable, of, catchError, retry } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Code } from '../doc-item';
+import { Code, Codes, DocItem } from '../doc-item';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -17,6 +17,12 @@ const httpOptions = {
 export class DocService {
   private apiURL = 'http://localhost:5710/docs'
   
+  moeins: Code[] = []
+  tafsilis: Code[] = []
+  docs: Doc[] = []
+
+  errors = null
+
   constructor(private http:HttpClient, private router:Router) { }
 
   getDoc(id: string | null): Observable<DocToSend>{
@@ -32,7 +38,6 @@ export class DocService {
       )
     }
   }
-
 
   getDocs(): Observable<DocToSend[]> {
     return this.http.get<DocToSend[]>(this.apiURL).pipe(
@@ -92,18 +97,34 @@ export class DocService {
     ) 
   }
 
-  getMoeins(): Observable<Code[]> {
-    return this.http.get<Code[]>(`${this.apiURL}/moeins`).pipe(
-      catchError(this.errorHandler3),
-      retry(5)
-    ) 
+  validateDocItem(item: DocItem): Observable<Codes> {
+    return this.http.post<Codes>(`${this.apiURL}/validate_doc_item`, item, httpOptions).pipe(
+      catchError(this.errorHandler3)
+    )
   }
 
-  getTafsilis(): Observable<Code[]> {
-    return this.http.get<Code[]>(`${this.apiURL}/tafsilis`).pipe(
+  updateMoeins(): void {
+    let x = this.http.get<Code[]>(`${this.apiURL}/moeins`).pipe(
+      catchError(this.errorHandler3),
+      retry(5)
+    )
+    x.subscribe((items) => this.moeins = items, (error) => alert(error.message))
+  }
+
+  updateTafsilis(): void {
+    let x = this.http.get<Code[]>(`${this.apiURL}/tafsilis`).pipe(
       catchError(this.errorHandler3),
       retry(5)
     ) 
+    x.subscribe((items) => this.tafsilis = items, (error) => alert(error.message))
+  }
+
+  getMoeins(): Code[] {
+    return this.moeins
+  }
+
+  getTafsilis(): Code[] {
+    return this.tafsilis
   }
 
   errorHandler(errorHandler: HttpErrorResponse): Observable<DocToSend> {
