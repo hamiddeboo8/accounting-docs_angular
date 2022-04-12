@@ -6,6 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Code, DocItem } from '../../doc-item';
 import { ModalCodeComponent } from '../modal-code/modal-code.component';
 import { MdbModalRef, MdbModalService } from 'mdb-angular-ui-kit/modal';
+import { ModalCodeTafsiliComponent } from '../modal-code-tafsili/modal-code-tafsili.component';
 
 @Component({
   selector: 'app-create-doc',
@@ -80,7 +81,7 @@ export class CreateDocComponent implements OnInit {
   }
 
   openTafsiliModal() {
-    this.modalRef = this.modalService.open(ModalCodeComponent, {
+    this.modalRef = this.modalService.open(ModalCodeTafsiliComponent, {
       data : {
         dataSource : this.total_tafsili,
         sentMoein: this.docItemModel.Tafsili
@@ -137,7 +138,6 @@ export class CreateDocComponent implements OnInit {
           CurrRate: this.docItemModel.CurrRate,
           SaveDB: this.docItemModel.SaveDB
         }
-        console.log(newItem)
         this.docItemModel = new DocItem(this.count, this.count, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
         this.addItem(newItem)
       } else {
@@ -151,14 +151,13 @@ export class CreateDocComponent implements OnInit {
 
   onSubmit(): void {
     this.docService.addDoc(this.docModel).subscribe(
-      (doc) => this.router.navigateByUrl('/'), 
+      () => this.router.navigateByUrl('/'), 
       (error) => alert(error.message))
   }
 
   minusPositive(x: number): boolean {
     const str = x.toString()
     for (let i = 0; i < str.length; i++) {
-      console.log(str.charAt(i))
       if (str.charAt(i) < '0' || str.charAt(i) > '9'){
         return true
       }
@@ -232,20 +231,17 @@ export class CreateDocComponent implements OnInit {
     return true
   }
 
-  /*onDelete(): void {
-    this.docService.removeDoc(this.docModel).subscribe(
-      (doc) => this.router.navigateByUrl('/'), 
-      (error) => alert(error.message))
-  }
-
-  onSubmitDraft(): void {
-    this.docService.saveDocDraft(this.docModel).subscribe(
-      (doc) => this.router.navigateByUrl('/'), 
-      (error) => alert(error))
-  }*/
-
   convertCurr() {
     this.meghdar = this.docItemModel.CurrPrice * this.docItemModel.CurrRate
+  }
+
+  updateList() {
+    this.docService.getMoeins().subscribe((items) => {
+      this.total_moein = items
+    }, (error) => alert(error.message))
+    this.docService.getTafsilis().subscribe((items) => {
+      this.total_tafsili = items
+    }, (error) => alert(error.message))
   }
 
 }

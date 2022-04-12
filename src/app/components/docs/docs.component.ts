@@ -1,4 +1,4 @@
-import { Component, OnInit, Output } from '@angular/core';
+import { Component, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { convertFrom, Doc } from '../../doc';
 import { DocService } from '../../services/doc.service';
@@ -8,12 +8,14 @@ import { DocService } from '../../services/doc.service';
   templateUrl: './docs.component.html',
   styleUrls: ['./docs.component.scss']
 })
-export class DocsComponent implements OnInit {
+export class DocsComponent implements OnInit{
   @Output() selectID: number = -1
   @Output() docInitCreate: Doc = new Doc(1, 1, "", 1, "", "", "موقت", 1, "عمومی", "سیستم حسابداری", [])
   dataSource: Doc[] = [];
   flag: number = 0;
   errors = null
+
+
 
   displayedColumns = [
     'شماره سند',
@@ -31,14 +33,15 @@ export class DocsComponent implements OnInit {
   constructor (private docService: DocService, private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit(): void {
-    console.log("X")
     this.docService.getDocs().subscribe((docs) => {
       let docs_2: Doc[] = []
       for (let i = 0; docs != null && i < docs.length; i++) {
         let doc = docs[i]
         docs_2.push(convertFrom(doc))
       }
-      this.dataSource = docs_2}, 
+      this.dataSource = docs_2
+      console.log("Docs: ", docs_2)
+    }, 
       (error) => {
         this.errors = error
       })
@@ -64,6 +67,42 @@ export class DocsComponent implements OnInit {
     }
   }
 
+  Delete(id: number): void{
+    this.flag = 0
+    let idx = -1
+    if(id != 0){
+      for (let index = 0; index < this.dataSource.length; index++) {
+        const doc = this.dataSource[index];
+        if(doc.ID === id) {
+          idx = index
+          if(doc.State !== "دائمی"){
+            this.flag = 1
+          }
+          break
+        }
+      }
+    }
+    if(this.flag === 1)
+    { 
+      this.docService.deleteDoc(id).subscribe(
+        () => {
+          let data: Doc[] = []
+          for (let i = 0; i < this.dataSource.length; i++) {
+            if (this.dataSource[i].ID == this.selectID){
+              continue
+            }
+            let element = this.dataSource[i]
+            data.push(element)
+          }
+        this.dataSource = data;
+        }, 
+        (error) => alert(error))
+    }
+    else{
+      alert("حذف سند امکان پذیر نیست")
+    }
+  }
+
   Create(): void{
     this.router.navigateByUrl('/create')
   }
@@ -83,19 +122,21 @@ export class DocsComponent implements OnInit {
   }
 
   changeState(): void {
-    this.docService.changeState(this.selectID).subscribe((doc) => {
+    this.docService.changeState(this.selectID).subscribe(() => {
       this.docService.getDocs().subscribe((docs) => {
         let docs_2: Doc[] = []
         for (let i = 0; docs != null && i < docs.length; i++) {
           let doc = docs[i]
           docs_2.push(convertFrom(doc))
         }
-        this.dataSource = docs_2}, 
+        this.dataSource = docs_2
+        console.log("Docs Change state: ", docs_2)
+      }, 
         (error) => {
           this.errors = error
         })
     }, (error) => {
-      alert("این سند دائمی است.")
+      alert(error.message)
     })
   }
 

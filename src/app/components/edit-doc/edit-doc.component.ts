@@ -1,27 +1,30 @@
-import { Component, Input, OnInit, Output } from '@angular/core';
+import { Component, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { DocService } from '../../services/doc.service';
-import { convertFrom, Doc } from '../../doc';
+import { convertFrom, Doc, DocEdit } from '../../doc';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { Code, DocItem } from '../../doc-item';
 import { MdbModalRef, MdbModalService } from 'mdb-angular-ui-kit/modal';
 import { ModalCodeComponent } from '../modal-code/modal-code.component';
+import { ModalCodeTafsiliComponent } from '../modal-code-tafsili/modal-code-tafsili.component';
 
 @Component({
   selector: 'app-edit-doc',
   templateUrl: './edit-doc.component.html',
   styleUrls: ['./edit-doc.component.scss']
 })
-export class EditDocComponent implements OnInit {
+export class EditDocComponent implements OnInit, OnDestroy  {
   
   selectID: number = -1
-  docModel: Doc = new Doc(0, 0, "", 1, "", "", "موقت", 1, "عمومی", "سیستم حسابداری", [])
+  docModel: Doc = new Doc(0, 1, "", 1, "", "", "موقت", 1, "عمومی", "سیستم حسابداری", [])
   x: number = 0
   dataSource: MatTableDataSource<DocItem> = new MatTableDataSource
   flag: number = 0;
   docItemModel = new DocItem(this.x, this.x, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
   createDocValidity: boolean = false
   errors = null;
+  addDocItems : DocItem[] = []
+  removeDocItems : number[] = []
 
   bedehbestan: string = ""
   meghdar: number = 0
@@ -44,11 +47,27 @@ export class EditDocComponent implements OnInit {
   ];
 
   constructor(private docService: DocService, private route: ActivatedRoute, private router: Router, private modalService: MdbModalService) { }
+  
+  @HostListener('window:beforeunload', ['$event'])
+  beforeunloadHandler(): void {
+    let pageReloaded = window.performance
+                 .getEntriesByType('navigation')
+                 .map((nav) => (nav as any).type)
+                 .includes('reload');
+    if (!pageReloaded) {
+      this.exit()
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.exit()
+  }
 
   ngOnInit(): void {
     this.dataSource.data = this.docModel?.DocItems
     this.route.paramMap.subscribe(params => {
        this.docService.getDoc(params.get('id')).subscribe(doc =>{
+        console.log("Edit doc: ", doc)
         this.docModel = convertFrom(doc);
         this.dataSource.data = this.docModel?.DocItems
         if (this.docModel?.DocItems != null) {
@@ -83,7 +102,7 @@ export class EditDocComponent implements OnInit {
   }
 
   openTafsiliModal() {
-    this.modalRef = this.modalService.open(ModalCodeComponent, {
+    this.modalRef = this.modalService.open(ModalCodeTafsiliComponent, {
       data : {
         dataSource : this.total_tafsili,
         sentMoein: this.docItemModel.Tafsili
@@ -102,14 +121,17 @@ export class EditDocComponent implements OnInit {
     data.push(item);
     this.dataSource.data = data;
     this.docModel.DocItems = data;
+    this.addDocItems.push(item)
   } 
 
   deleteItem(){
     this.x -= 1
     let data: DocItem[] = []
     let j = 1
+    let removedID = -1
     for (let i = 0; i < this.dataSource.data.length; i++) {
       if (this.dataSource.data[i].Num == this.selectID){
+        removedID = this.dataSource.data[i].ID
         continue
       }
       let element = this.dataSource.data[i]
@@ -120,12 +142,22 @@ export class EditDocComponent implements OnInit {
     }
     this.dataSource.data = data;
     this.docModel.DocItems = data;
+    if (removedID != -1) {
+      this.removeDocItems.push(removedID)
+    }
   } 
 
   onSubmit(): void {
-    this.docService.changeDoc(this.docModel).subscribe(
-      (doc) => this.router.navigateByUrl('/'), 
+    let docEdit = new DocEdit(this.docModel.ID, this.docModel.DocNum, this.docModel.Date, this.docModel.AtfNum, this.docModel.MinorNum, this.docModel.Desc, this.docModel.State, this.docModel.DailyNum, this.docModel.DocType, this.docModel.EmitSystem, this.addDocItems, this.removeDocItems)
+    this.docService.changeDoc(docEdit).subscribe(
+      () => this.router.navigateByUrl('/'), 
       (error) => alert(error.message))
+  }
+
+  exit(): void {
+    this.docService.changeIsChange(this.docModel.ID).subscribe(() => this.router.navigateByUrl('/'), (error) => {
+      alert("نمیتوان خارج شد.")
+    })
   }
 
   createDocItem() {
@@ -186,7 +218,6 @@ export class EditDocComponent implements OnInit {
   minusPositive(x: number): boolean {
     const str = x.toString()
     for (let i = 0; i < str.length; i++) {
-      console.log(str.charAt(i))
       if (str.charAt(i) < '0' || str.charAt(i) > '9'){
         return true
       }
@@ -195,7 +226,6 @@ export class EditDocComponent implements OnInit {
   }
 
   checkCode(str: string): boolean {
-    console.log(str)
     for (let i = 0; i < str.length; i++) {
       if (str.charAt(i) < '0' || str.charAt(i) > '9'){
         return true
@@ -208,7 +238,6 @@ export class EditDocComponent implements OnInit {
     if (str == null || str.length == 0) {
       return false
     }
-    console.log(str)
     for (let i = 0; i < str.length; i++) {
       if (str.charAt(i) < '0' || str.charAt(i) > '9'){
         return true
@@ -238,6 +267,15 @@ export class EditDocComponent implements OnInit {
 
   convertCurr() {
     this.meghdar = this.docItemModel.CurrPrice * this.docItemModel.CurrRate
+  }
+
+  updateList() {
+    this.docService.getMoeins().subscribe((items) => {
+      this.total_moein = items
+    }, (error) => alert(error.message))
+    this.docService.getTafsilis().subscribe((items) => {
+      this.total_tafsili = items
+    }, (error) => alert(error.message))
   }
 
 }

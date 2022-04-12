@@ -27,9 +27,7 @@
           <div class="col-md-4">
               <div class="form-group">
                 <label for="">تاریخ:</label>
-                <ng-persian-datepicker [dateFormat]="'jYYYY-jMM-jDD HH:mm:ss'" (dateOnSelect)="docModel.Date = $event.shamsi">
-                  <input type="text" class="form-control" id="date" #date="ngModel" name="date" required [class.is-invalid]="date.invalid" [ngModel]="docModel.Date" placeholder="تاریخ"/>
-                </ng-persian-datepicker>
+                <input class="form-control" id="date" readonly name="date" [(ngModel)]="docModel.Date" placeholder="تاریخ">
               </div>
             </div>
           <div class="col-md-4">

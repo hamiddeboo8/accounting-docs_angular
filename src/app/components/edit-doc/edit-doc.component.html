@@ -7,7 +7,7 @@
           <div class="col-md-4">
             <div class="form-group">
               <label for="">شماره سند: </label>
-              <input class="form-control" type="number" id="docNum" #docNum="ngModel" name="docNum" [class.is-invalid]="docNum.invalid" [(ngModel)]="docModel.DocNum" placeholder="شماره سند">
+              <input class="form-control" min="1" type="number" id="docNum" #docNum="ngModel" name="docNum" [class.is-invalid]="docNum.invalid" [(ngModel)]="docModel.DocNum" placeholder="شماره سند">
             </div>
           </div>
           <div class="col-md-4">
@@ -219,6 +219,7 @@
         </div>
       </form>  
       <button [disabled]="createForm.invalid || (docModel.DocItems != null && docModel.DocItems.length == 0) || checkCode3(docModel.MinorNum)" type="submit" class="btn btn-primary" (click)="onSubmit()">ذخیره</button>
-      <button routerLink="/">برگشت به فهرست اسناد</button>
+      <button class="feature-btn" (click)="updateList()">  بروزرسانی لیست معین و تفصیلی</button>
+      <button (click)="exit()">برگشت به فهرست اسناد</button>
     </div>
     

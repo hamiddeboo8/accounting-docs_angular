@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { convertTo, Doc, DocToSend } from '../doc';
+import { convertTo, convertToEdit, Doc, DocEdit, DocToSend } from '../doc';
 import { Observable, of, catchError, retry } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -20,6 +20,7 @@ export class DocService {
   constructor(private http:HttpClient, private router:Router) { }
 
   getDoc(id: string | null): Observable<DocToSend>{
+    console.log("id: ", id)
     if (id != null) {
       var x: number = +id;
       return this.http.get<DocToSend>(`${this.apiURL}/${x}`).pipe(
@@ -41,32 +42,48 @@ export class DocService {
   }
 
   editDocs(id: number): void {
+    console.log("id: ", id)
     let x = this.http.get(`${this.apiURL}/edit/${id}`).pipe(
       catchError(this.errorHandler3),
-      retry(5)
+      retry(3)
     )
     x.subscribe(() => this.router.navigateByUrl('/edit/' + String(id)), (error) => alert(error.message)) 
   }
 
+  deleteDoc(id: number): Observable<any> {
+    return this.http.delete(`${this.apiURL}/${id}`).pipe(
+      catchError(this.errorHandler3),
+      retry(3)
+    )
+  }
+
   addDoc(newDoc: Doc): Observable<DocToSend> {
     const docSend = convertTo(newDoc)
+    console.log("DocSendAdd: ", docSend)
     return this.http.post<DocToSend>(this.apiURL, docSend, httpOptions).pipe(
       catchError(this.errorHandler)
     )
   }
 
-  changeDoc(newDoc: Doc): Observable<DocToSend> {
-    const docSend = convertTo(newDoc)
-    return this.http.put<DocToSend>(`${this.apiURL}/${newDoc.DocNum}`, docSend, httpOptions).pipe(
+  changeDoc(newDoc: DocEdit): Observable<DocToSend> {
+    const docSend = convertToEdit(newDoc)
+    return this.http.put<DocToSend>(`${this.apiURL}/${newDoc.ID}`, docSend, httpOptions).pipe(
       catchError(this.errorHandler)
     )
   }
 
   changeState (x: number): Observable<DocToSend> { 
+    console.log("x: ", x)
     return this.http.put<DocToSend>(`${this.apiURL}/change_state/${x}`, httpOptions).pipe(
         catchError(this.errorHandler)
     )
   }
+
+  changeIsChange(x: number): Observable<DocToSend> {
+    return this.http.put<DocToSend>(`${this.apiURL}/changing/${x}`, httpOptions).pipe(
+      catchError(this.errorHandler)
+  )  
+}
 
   createDoc(): Observable<DocToSend> {
     return this.http.get<DocToSend>(`${this.apiURL}/create`).pipe(
@@ -102,7 +119,7 @@ export class DocService {
     console.log(errorHandler3)
     throw new Error(errorHandler3.error.message);
   }
-  
+
   /*
   getDraft(id: string | null): Observable<DocToSend>{
     if (id != null) {

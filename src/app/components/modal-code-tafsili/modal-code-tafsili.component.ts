@@ -7,14 +7,14 @@ import { Code } from 'src/app/doc-item';
   templateUrl: './modal-code-tafsili.component.html',
   styleUrls: ['./modal-code-tafsili.component.scss']
 })
-export class ModalCodeTafsiliComponent implements OnInit {
+export class ModalCodeTafsiliComponent {
 
   selectID: Code | undefined
   dataSource = []
   sentMoein: Code | undefined
 
   displayedColumns = [
-    'کد معین',
+    'کد تفصیلی',
     'عنوان'
   ];
 
@@ -23,10 +23,6 @@ export class ModalCodeTafsiliComponent implements OnInit {
   onAdmit() {
     this.sentMoein = this.selectID
     this.modalRef.close(this.sentMoein)
-  }
-
-  ngOnInit(): void {
-      
   }
 
 }

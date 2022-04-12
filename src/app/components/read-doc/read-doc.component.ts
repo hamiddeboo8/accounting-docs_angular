@@ -42,6 +42,7 @@ export class ReadDocComponent implements OnInit {
     this.dataSource.data = this.docModel?.DocItems
     this.route.paramMap.subscribe(params => {
        this.docService.getDoc(params.get('id')).subscribe(doc =>{
+        console.log("Read Doc: ", doc)
         this.docModel = convertFrom(doc);
         this.dataSource.data = this.docModel?.DocItems
         this.x = this.docModel?.DocItems.length + 1

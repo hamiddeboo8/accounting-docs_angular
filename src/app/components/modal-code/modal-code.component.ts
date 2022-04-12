@@ -26,4 +26,5 @@ export class ModalCodeComponent {
     this.sentMoein = this.selectID
     this.modalRef.close(this.sentMoein)
   }
+
 }
