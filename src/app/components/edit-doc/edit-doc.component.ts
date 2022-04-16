@@ -18,16 +18,22 @@ export class EditDocComponent implements OnInit, OnDestroy  {
   selectID: number = -1
   docModel: Doc = new Doc(0, 1, "", 1, "", "", "موقت", 1, "عمومی", "سیستم حسابداری", [])
   x: number = 0
+  idCount: number = 0
   dataSource: MatTableDataSource<DocItem> = new MatTableDataSource
   flag: number = 0;
-  docItemModel = new DocItem(this.x, this.x, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
+  docItemModel = new DocItem(this.idCount, this.x, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
   createDocValidity: boolean = false
   errors = null;
+
   addDocItems : DocItem[] = []
   removeDocItems : number[] = []
 
+  editDocItems : DocItem[] = []
+  
   bedehbestan: string = ""
   meghdar: number = 0
+
+  filledWithDocDesc: boolean = false
 
   modalRef: MdbModalRef<ModalCodeComponent> | null = null;
 
@@ -72,8 +78,10 @@ export class EditDocComponent implements OnInit, OnDestroy  {
         this.dataSource.data = this.docModel?.DocItems
         if (this.docModel?.DocItems != null) {
           this.x = this.docModel?.DocItems.length + 1
+          this.idCount = this.docModel?.DocItems[this.docModel?.DocItems.length - 1].ID + 1
         }
         this.docItemModel.Num = this.x
+        this.docItemModel.ID = this.idCount
       }, 
       (error) => {
         this.errors = error
@@ -113,29 +121,50 @@ export class EditDocComponent implements OnInit, OnDestroy  {
 
   deleteItem(){
     this.x -= 1
-    let data: DocItem[] = []
-    let j = 1
-    let removedID = -1
-    for (let i = 0; i < this.dataSource.data.length; i++) {
-      if (this.dataSource.data[i].Num == this.selectID){
-        removedID = this.dataSource.data[i].ID
-        continue
-      }
-      let element = this.dataSource.data[i]
-      element.Num = j
-      element.ID = j
-      data.push(element)
-      j += 1
+    let data: DocItem[] = this.dataSource.data
+    if (this.selectID == -1) {
+      return
+    }
+    let removedID = this.dataSource.data[this.selectID - 1].ID
+    data.splice(this.selectID - 1, 1)
+    for (let i = this.selectID - 1; i < data.length; i++) {
+      data[i].Num -= 1
     }
     this.dataSource.data = data;
     this.docModel.DocItems = data;
+    let x = 0
+    let index = -1
     if (removedID != -1) {
-      this.removeDocItems.push(removedID)
+      for(let i = 0; i < this.addDocItems.length; i++){
+        if (this.addDocItems[i].ID == removedID){
+          x = 1
+          index = i
+          break
+        }
+      }
+      if (x == 0) {
+        x = 0
+        index = -1
+        this.removeDocItems.push(removedID)
+        for(let i = 0; i < this.editDocItems.length; i++){
+          if (this.editDocItems[i].ID == removedID){
+            x = 1
+            index = i
+            break
+          }
+        }
+        if (x == 1) {
+          this.editDocItems.splice(index, 1)
+        }
+      } else {
+        this.addDocItems.splice(index, 1)
+      }
     }
+    this.selectID = -1
   } 
 
   onSubmit(): void {
-    let docEdit = new DocEdit(this.docModel.ID, this.docModel.DocNum, this.docModel.Date, this.docModel.AtfNum, this.docModel.MinorNum, this.docModel.Desc, this.docModel.State, this.docModel.DailyNum, this.docModel.DocType, this.docModel.EmitSystem, this.addDocItems, this.removeDocItems)
+    let docEdit = new DocEdit(this.docModel.ID, this.docModel.DocNum, this.docModel.Date, this.docModel.AtfNum, this.docModel.MinorNum, this.docModel.Desc, this.docModel.State, this.docModel.DailyNum, this.docModel.DocType, this.docModel.EmitSystem, this.addDocItems, this.removeDocItems, this.editDocItems)
     this.docService.changeDoc(docEdit).subscribe(
       () => this.router.navigateByUrl('/'), 
       (error) => alert(error.message))
@@ -161,28 +190,34 @@ export class EditDocComponent implements OnInit, OnDestroy  {
     const tafsili: Code = { ...this.docItemModel.Tafsili}
     this.docItemModel.Moein = moein
     this.docItemModel.Tafsili = tafsili
-    let desc = this.docItemModel.Desc
+    let copy = {...this.docItemModel}
+    if (this.filledWithDocDesc) {
+      copy.Desc = this.docModel.Desc
+      this.docItemModel.Desc = copy.Desc
+    }
     this.docService.validateDocItem(this.docItemModel).subscribe(
       (item) => {
         const newItem ={
-          ID: this.x,
+          ID: this.idCount,
           Num: this.x,
           Moein: item.Moein,
           Tafsili: item.Tafsili,
-          Bedehkar: this.docItemModel.Bedehkar,
-          Bestankar: this.docItemModel.Bestankar,
-          Desc: desc,
-          CurrPrice: this.docItemModel.CurrPrice,
-          Curr: this.docItemModel.Curr,
-          CurrRate: this.docItemModel.CurrRate,
-          SaveDB: this.docItemModel.SaveDB
+          Bedehkar: copy.Bedehkar,
+          Bestankar: copy.Bestankar,
+          Desc: copy.Desc,
+          CurrPrice: copy.CurrPrice,
+          Curr: copy.Curr,
+          CurrRate: copy.CurrRate,
+          SaveDB: copy.SaveDB
         }
         this.docItemModel = new DocItem(this.x, this.x, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
         this.x += 1
+        this.idCount += 1
         const data = this.dataSource.data;
         data.push(newItem);
         this.dataSource.data = data;
         this.docModel.DocItems = data;
+        this.addDocItems.push(newItem)
       }, (error) => alert(error.message)
     )
   }
@@ -244,6 +279,92 @@ export class EditDocComponent implements OnInit, OnDestroy  {
   updateList() {
     this.docService.updateMoeins().then(m => this.total_moein = m)
     this.docService.updateTafsilis().then(t => this.total_tafsili = t)
+  }
+
+  updateFieldsOfDocItemModel(idx: number): void {
+    this.docItemModel = {...this.docModel.DocItems[idx - 1]}
+    this.docItemModel.Moein = {...this.docModel.DocItems[idx-1].Moein}
+    this.docItemModel.Tafsili = {...this.docModel.DocItems[idx-1].Tafsili}
+
+    if (this.docItemModel.Bedehkar == 0) {
+      this.meghdar = this.docItemModel.Bestankar
+      this.bedehbestan = "true"
+    } else {
+      this.meghdar = this.docItemModel.Bedehkar
+      this.bedehbestan = "false"
+    }
+  }
+
+  editItem(idx: number): void {
+    if (this.bedehbestan != undefined) {
+      if (this.bedehbestan == 'true') {
+        this.docItemModel.Bedehkar = 0
+        this.docItemModel.Bestankar = this.meghdar
+      } else {
+        this.docItemModel.Bedehkar = this.meghdar
+        this.docItemModel.Bestankar = 0
+      }
+    }
+    const moein: Code = { ...this.docItemModel.Moein}
+    const tafsili: Code = { ...this.docItemModel.Tafsili}
+    this.docItemModel.Moein = moein
+    this.docItemModel.Tafsili = tafsili
+    let copy = {...this.docItemModel}
+    if (this.filledWithDocDesc) {
+      copy.Desc = this.docModel.Desc
+      this.docItemModel.Desc = copy.Desc
+    }
+    this.docService.validateDocItem(this.docItemModel).subscribe(
+      (item) => {
+        const newItem ={
+          ID: this.docModel.DocItems[idx - 1].ID,
+          Num: this.docModel.DocItems[idx - 1].Num,
+          Moein: item.Moein,
+          Tafsili: item.Tafsili,
+          Bedehkar: copy.Bedehkar,
+          Bestankar: copy.Bestankar,
+          Desc: copy.Desc,
+          CurrPrice: copy.CurrPrice,
+          Curr: copy.Curr,
+          CurrRate: copy.CurrRate,
+          SaveDB: copy.SaveDB
+        }
+        this.docItemModel = new DocItem(this.idCount, this.x, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
+        this.meghdar = 0
+        this.bedehbestan = ""
+        const data = this.dataSource.data;
+        data[idx - 1] = newItem;
+        this.dataSource.data = data;
+        this.docModel.DocItems = data;
+        let x = 0
+        let index = -1
+        for(let i = 0; i < this.editDocItems.length; i++){
+          if (this.editDocItems[i].ID == newItem.ID){
+            x = 1
+            index = i
+            break
+          }
+        }
+        if (x == 1) {
+          this.editDocItems[index] = newItem
+        } else {
+          let x = 0
+          let index = -1
+          for(let i = 0; i < this.addDocItems.length; i++){
+            if (this.addDocItems[i].ID == newItem.ID){
+              x = 1
+              index = i
+              break
+            }
+          }
+          if (x == 1) {
+            this.addDocItems[index] = newItem
+          } else {
+            this.editDocItems.push(newItem)
+          }
+        }
+      }, (error) => alert(error.message)
+    )
   }
 
 }

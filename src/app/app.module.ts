@@ -33,6 +33,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ModalCodeTafsiliComponent } from './components/modal-code-tafsili/modal-code-tafsili.component';
 import { NgPersianDatepickerModule } from 'ng-persian-datepicker';
 import {MatRadioModule, MAT_RADIO_DEFAULT_OPTIONS} from '@angular/material/radio';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 
 
@@ -83,7 +84,8 @@ const appRoutes: Routes = [
     MatTableModule,
     HttpClientModule,
     NgPersianDatepickerModule,
-    MatRadioModule
+    MatRadioModule,
+    MatSlideToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]

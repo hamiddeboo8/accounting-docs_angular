@@ -47,6 +47,13 @@ export class DocService {
     )
   }
 
+  numberingDocs(): Observable<any> {
+    return this.http.get(`${this.apiURL}/numbering`).pipe(
+      catchError(this.errorHandler3),
+      retry(5)
+    )
+  }
+
   filterByMinorNum(filter: string): Observable<DocToSend[]> {
     return this.http.get<DocToSend[]>(`${this.apiURL}/filter/minor_num/${filter}`).pipe(
       catchError(this.errorHandler2)
@@ -101,7 +108,7 @@ export class DocService {
     let today = new Date().toLocaleDateString('fa-IR')
     const rExp : RegExp = new RegExp("(.+)/(.+)/(.+)");
     var matches = rExp.exec(today)
-    let doc: Doc = new Doc(0, 1, "", 0, "", "", "موقت", 0, "عمومی", "سیستم حسابداری", [])
+    let doc: Doc = new Doc(0, 100000, "", 0, "", "", "موقت", 0, "عمومی", "سیستم حسابداری", [])
     if (matches != null) {
       let year = +this.fixNumbers(matches[1])
       let month = +this.fixNumbers(matches[2])

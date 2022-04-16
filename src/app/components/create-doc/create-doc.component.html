@@ -1,15 +1,13 @@
-<div *ngIf="errors" class="alert alert-danger"> 
-    {{ errors }} 
-  </div>
-  <div class="rtlDir" *ngIf="!errors">
+
+  <div class="rtlDir">
       <form #createForm="ngForm">
         <div class="row">
-          <div class="col-md-4">
+          <!--<div class="col-md-4">
             <div class="form-group">
               <label for="">شماره سند: </label>
               <input class="form-control" min="1" type="number" id="docNum" required #docNum="ngModel" name="docNum" [class.is-invalid]="docNum.invalid" [(ngModel)]="docModel.DocNum" placeholder="شماره سند">
             </div>
-          </div>
+          </div>-->
           <div class="col-md-4">
             <div class="form-group">
               <label for="">نوع سند:</label>
@@ -105,7 +103,7 @@
 
       
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.selected]="row.Num === selectID" (click)="selectID = row.Num"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.selected]="row.Num === selectID" (click)="selectID = row.Num; updateFieldsOfDocItemModel(row.Num)"></tr>
         </table>
       </div>
       <div>
@@ -150,14 +148,24 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group">
+                        <div class="form-group" *ngIf="!filledWithDocDesc">
                           <label for="">شرح:</label>
                           <input class="form-control" required id="descItem" name="descItem" #descItem="ngModel" [class.is-invalid]="descItem.invalid" [(ngModel)]="docItemModel.Desc" placeholder="شرح">
                         </div>
+                        <div class="form-group" *ngIf="filledWithDocDesc">
+                          <label for="">شرح:</label>
+                          <input class="form-control" required readonly id="descItem2" name="descItem2" #descItem2="ngModel" [class.is-invalid]="descItem2.invalid" [(ngModel)]="docModel.Desc" placeholder="شرح">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <mat-slide-toggle class="example-margin" [(ngModel)]="filledWithDocDesc" [ngModelOptions]="{standalone: true}">
+                          با توضیحات پر شود
+                        </mat-slide-toggle>
                       </div>
+                    </div>
                 </div>
-                {{docItemModel.Desc}}
-                {{docModel.DocItems | json}}
+
                 
                 <div class="row">
                   <div class="col-md-4">
@@ -185,8 +193,9 @@
         </div>
     
         <div class="features-btn">
-            <button [disabled]="this.bedehbestan == '' || addItemForm.form.invalid || !checkDocItem() || checkCode2(docItemModel.Tafsili.CodeVal) || checkCode(docItemModel.Moein.CodeVal)" class="feature-btn" (click)="createDocItem(); addItemForm.resetForm();">ایجاد قلم جدید</button>
+            <button [disabled]="this.bedehbestan == '' || addItemForm.form.invalid || !checkDocItem() || checkCode2(docItemModel.Tafsili.CodeVal) || checkCode(docItemModel.Moein.CodeVal)" class="feature-btn" (click)="createDocItem();">ایجاد قلم جدید</button>
             <button [disabled]="selectID == -1 || count == 1" class="feature-btn" (click)="deleteItem()">حذف قلم</button>
+            <button [disabled]="selectID == -1 || count == 1" class="feature-btn" (click)="editItem(selectID)">ویرایش قلم</button>
         </div>
     </div>
     <form #showForm="ngForm" *ngIf="selectID > 0">

@@ -10,7 +10,7 @@ import { DocService } from '../../services/doc.service';
 })
 export class DocsComponent implements OnInit{
   @Output() selectID: number = -1
-  @Output() docInitCreate: Doc = new Doc(1, 1, "", 1, "", "", "موقت", 1, "عمومی", "سیستم حسابداری", [])
+  @Output() docInitCreate: Doc = new Doc(1, 100000, "", 1, "", "", "موقت", 1, "عمومی", "سیستم حسابداری", [])
   dataSource: Doc[] = [];
   flag: number = 0;
   errors = null
@@ -130,7 +130,7 @@ export class DocsComponent implements OnInit{
         this.dataSource = docs_2
       }, 
         (error) => {
-          this.errors = error
+          alert(error)
         })
     }, (error) => {
       alert(error.message)
@@ -159,7 +159,7 @@ export class DocsComponent implements OnInit{
       this.dataSource = docs_2
     }, 
       (error) => {
-        this.errors = error
+        alert(error)
     })
   }
 
@@ -173,8 +173,26 @@ export class DocsComponent implements OnInit{
       this.dataSource = docs_2
     }, 
       (error) => {
-        this.errors = error
+        alert(error)
       })
   }
 
+  NumberingDocs(): void {
+    this.docService.numberingDocs().subscribe(() => {
+      this.docService.getDocs().subscribe((docs) => {
+        let docs_2: Doc[] = []
+        for (let i = 0; docs != null && i < docs.length; i++) {
+          let doc = docs[i]
+          docs_2.push(convertFrom(doc))
+        }
+        this.dataSource = docs_2
+      }, 
+        (error) => {
+          alert(error)
+        })
+    }, 
+      (error) => {
+        alert(error)
+    })
+  }
 }

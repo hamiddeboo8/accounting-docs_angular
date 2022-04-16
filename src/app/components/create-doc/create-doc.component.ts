@@ -14,7 +14,7 @@ import { ModalCodeTafsiliComponent } from '../modal-code-tafsili/modal-code-tafs
   styleUrls: ['./create-doc.component.scss']
 })
 export class CreateDocComponent implements OnInit {
-  @Input() docModel: Doc = new Doc(1, 1, "", 1, "", "", "موقت", 1, "عمومی", "سیستم حسابداری", []) 
+  @Input() docModel: Doc = new Doc(1, 100000, "", 1, "", "", "موقت", 1, "عمومی", "سیستم حسابداری", []) 
   
   count: number = 1
   docItemModel = new DocItem(this.count, this.count, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
@@ -25,6 +25,8 @@ export class CreateDocComponent implements OnInit {
 
   bedehbestan: string = ""
   meghdar: number = 0
+
+  filledWithDocDesc: boolean = false
 
   errors = null;
 
@@ -102,7 +104,11 @@ export class CreateDocComponent implements OnInit {
     const tafsili: Code = { ...this.docItemModel.Tafsili}
     this.docItemModel.Moein = moein
     this.docItemModel.Tafsili = tafsili
-    let desc = this.docItemModel.Desc
+    let copy: DocItem = { ...this.docItemModel}
+    if (this.filledWithDocDesc) {
+      copy.Desc = this.docModel.Desc
+      this.docItemModel.Desc = copy.Desc
+    }
     this.docService.validateDocItem(this.docItemModel).subscribe(
       (item) => {
         const newItem ={
@@ -110,15 +116,17 @@ export class CreateDocComponent implements OnInit {
           Num: this.count,
           Moein: item.Moein,
           Tafsili: item.Tafsili,
-          Bedehkar: this.docItemModel.Bedehkar,
-          Bestankar: this.docItemModel.Bestankar,
-          Desc: desc,
-          CurrPrice: this.docItemModel.CurrPrice,
-          Curr: this.docItemModel.Curr,
-          CurrRate: this.docItemModel.CurrRate,
-          SaveDB: this.docItemModel.SaveDB
+          Bedehkar: copy.Bedehkar,
+          Bestankar: copy.Bestankar,
+          Desc: copy.Desc,
+          CurrPrice: copy.CurrPrice,
+          Curr: copy.Curr,
+          CurrRate: copy.CurrRate,
+          SaveDB: copy.SaveDB
         }
         this.docItemModel = new DocItem(this.count, this.count, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
+        this.bedehbestan = ""
+        this.meghdar = 0
         this.count += 1
         const data = this.dataSource.data;
         data.push(newItem);
@@ -160,6 +168,7 @@ export class CreateDocComponent implements OnInit {
     }
     this.dataSource.data = data;
     this.docModel.DocItems = data;
+    this.selectID = -1
   } 
 
   checkCode(str: string): boolean {
@@ -209,6 +218,65 @@ export class CreateDocComponent implements OnInit {
   updateList() {
     this.docService.updateMoeins().then(m => this.total_moein = m)
     this.docService.updateTafsilis().then(t => this.total_tafsili = t)
+  }
+
+  updateFieldsOfDocItemModel(idx: number): void {
+    this.docItemModel = {...this.docModel.DocItems[idx - 1]}
+    this.docItemModel.Moein = {...this.docModel.DocItems[idx-1].Moein}
+    this.docItemModel.Tafsili = {...this.docModel.DocItems[idx-1].Tafsili}
+
+    if (this.docItemModel.Bedehkar == 0) {
+      this.meghdar = this.docItemModel.Bestankar
+      this.bedehbestan = "true"
+    } else {
+      this.meghdar = this.docItemModel.Bedehkar
+      this.bedehbestan = "false"
+    }
+  }
+
+  editItem(idx: number): void {
+    if (this.bedehbestan != undefined) {
+      if (this.bedehbestan == 'true') {
+        this.docItemModel.Bedehkar = 0
+        this.docItemModel.Bestankar = this.meghdar
+      } else {
+        this.docItemModel.Bedehkar = this.meghdar
+        this.docItemModel.Bestankar = 0
+      }
+    }
+    const moein: Code = { ...this.docItemModel.Moein}
+    const tafsili: Code = { ...this.docItemModel.Tafsili}
+    this.docItemModel.Moein = moein
+    this.docItemModel.Tafsili = tafsili
+    let copy = {...this.docItemModel}
+    if (this.filledWithDocDesc) {
+      copy.Desc = this.docModel.Desc
+      this.docItemModel.Desc = copy.Desc
+    }
+    this.docService.validateDocItem(this.docItemModel).subscribe(
+      (item) => {
+        const newItem ={
+          ID: this.docModel.DocItems[idx - 1].ID,
+          Num: this.docModel.DocItems[idx - 1].Num,
+          Moein: item.Moein,
+          Tafsili: item.Tafsili,
+          Bedehkar: copy.Bedehkar,
+          Bestankar: copy.Bestankar,
+          Desc: copy.Desc,
+          CurrPrice: copy.CurrPrice,
+          Curr: copy.Curr,
+          CurrRate: copy.CurrRate,
+          SaveDB: copy.SaveDB
+        }
+        this.docItemModel = new DocItem(this.count, this.count, new Code(0, "", "", false, false), new Code(0, "", "", false, false), 0, 0, "", 0, "", 0, false)
+        this.meghdar = 0
+        this.bedehbestan = ""
+        const data = this.dataSource.data;
+        data[idx - 1] = newItem;
+        this.dataSource.data = data;
+        this.docModel.DocItems = data;
+      }, (error) => alert(error.message)
+    )
   }
 
 }
